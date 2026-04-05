@@ -17,7 +17,7 @@ class User_Controller extends RestController
         $this->output->set_header('Access-Control-Allow-Origin: *');
         $this->output->set_header('Access-Control-Allow-Headers: Content-Type');
 
-        $this->_check_rate_limit();
+        $this->check_rate_limit();
 
         $this->current_user = $this->session->userdata('user_id');
     }
@@ -45,7 +45,7 @@ class User_Controller extends RestController
         }
     }
 
-    private function _check_rate_limit()
+    private function check_rate_limit()
     {
         $ip = $this->input->ip_address();
         $endpoint = $this->uri->uri_string();

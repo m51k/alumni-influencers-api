@@ -31,14 +31,14 @@ class Api_Controller extends User_Controller {
             'GET'
         );
 
-        $winner = $this->_select_winner();
+        $winner = $this->select_winner();
 
         if (!$winner) {
             $this->response(['status' => false, 'message' => 'No featured alumnus today'], 404);
             return;
         }
 
-        $this->_update_appearance_count($winner->slot_date);
+        $this->update_appearance_count($winner->slot_date);
 
         $profile = $this->Alumnus_Model->get_profile($winner->user_id);
 
@@ -55,7 +55,7 @@ class Api_Controller extends User_Controller {
         ], 200);
     }
 
-    private function _select_winner() {
+    private function select_winner() {
         $today = date('Y-m-d');
 
         $existing = $this->Bid_Model->get_active_winner();
@@ -81,7 +81,7 @@ class Api_Controller extends User_Controller {
         return $this->Bid_Model->get_active_winner();
     }
 
-    private function _update_appearance_count($slot_date) {
+    private function update_appearance_count($slot_date) {
         $this->db->where('slot_date', $slot_date)
             ->set('appearance_count', 'appearance_count + 1', FALSE)
             ->update('bid_winners');
