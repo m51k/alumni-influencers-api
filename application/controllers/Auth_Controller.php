@@ -55,6 +55,11 @@ class Auth_Controller extends User_Controller
 
         $user_id = $this->User_Model->create($email, $password, $role);
 
+        if ($role === 'alumnus') {
+            $this->load->model('Alumnus_Model');
+            $this->Alumnus_Model->create_profile($user_id);
+        }
+
         $token = $this->Token_Model->create($user_id, 'verify');
 
         $verify_url = base_url('index.php/api/v1/auth/verify/' . $token);

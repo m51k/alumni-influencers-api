@@ -35,21 +35,6 @@ class Alumnus extends User_Controller
         ], 200);
     }
 
-    // POST /api/v1/alumnus/profile
-    public function profile_post()
-    {
-        $existing = $this->Alumnus_Model->get_profile($this->current_user);
-
-        if ($existing) {
-            $this->response(['status' => false, 'message' => 'Profile already exists'], 409);
-            return;
-        }
-
-        $profile_id = $this->Alumnus_Model->create_profile($this->current_user);
-
-        $this->response(['status' => true, 'message' => 'Profile created', 'profile_id' => $profile_id], 201);
-    }
-
     // PUT /api/v1/alumnus/profile
     public function profile_put()
     {
