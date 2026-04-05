@@ -53,6 +53,7 @@ $route['default_controller'] = 'welcome';
 $route['404_override'] = '';
 $route['translate_uri_dashes'] = FALSE;
 
+// Profile
 $route['api/v1/auth/ping'] = 'Auth_Controller/ping';
 $route['api/v1/auth/register'] = 'Auth_Controller/register';
 $route['api/v1/auth/verify/(:any)'] = 'Auth_Controller/verify/$1';
@@ -61,22 +62,31 @@ $route['api/v1/auth/logout'] = 'Auth_Controller/logout';
 $route['api/v1/auth/forgot-password'] = 'Auth_Controller/forgot_password';
 $route['api/v1/auth/reset-password'] = 'Auth_Controller/reset_password';
 
-$route['api/v1/alumnus/profile'] = 'Alumnus/profile';
-$route['api/v1/alumnus/profile/image'] = 'Alumnus/image';
-$route['api/v1/alumnus/degrees'] = 'Alumnus/degrees';
-$route['api/v1/alumnus/degrees/(:num)'] = 'Alumnus/degrees/$1';
-$route['api/v1/alumnus/certifications'] = 'Alumnus/certifications';
-$route['api/v1/alumnus/certifications/(:num)'] = 'Alumnus/certifications/$1';
-$route['api/v1/alumnus/licences'] = 'Alumnus/licences';
-$route['api/v1/alumnus/licences/(:num)'] = 'Alumnus/licences/$1';
-$route['api/v1/alumnus/courses'] = 'Alumnus/courses';
-$route['api/v1/alumnus/courses/(:num)'] = 'Alumnus/courses/$1';
-$route['api/v1/alumnus/employment'] = 'Alumnus/employment';
-$route['api/v1/alumnus/employment/(:num)'] = 'Alumnus/employment/$1';
+// Alumnus
+$route['api/v1/alumnus/profile'] = 'Alumnus_Controller/profile';
+$route['api/v1/alumnus/profile/image'] = 'Alumnus_Controller/image';
+$route['api/v1/alumnus/degrees'] = 'Alumnus_Controller/degrees';
+$route['api/v1/alumnus/degrees/(:num)'] = 'Alumnus_Controller/degrees/$1';
+$route['api/v1/alumnus/certifications'] = 'Alumnus_Controller/certifications';
+$route['api/v1/alumnus/certifications/(:num)'] = 'Alumnus_Controller/certifications/$1';
+$route['api/v1/alumnus/licences'] = 'Alumnus_Controller/licences';
+$route['api/v1/alumnus/licences/(:num)'] = 'Alumnus_Controller/licences/$1';
+$route['api/v1/alumnus/courses'] = 'Alumnus_Controller/courses';
+$route['api/v1/alumnus/courses/(:num)'] = 'Alumnus_Controller/courses/$1';
+$route['api/v1/alumnus/employment'] = 'Alumnus_Controller/employment';
+$route['api/v1/alumnus/employment/(:num)'] = 'Alumnus_Controller/employment/$1';
 
-$route['api/v1/alumnus/bid/slot'] = 'Alumnus/bid_slot';
-$route['api/v1/alumnus/bid/status'] = 'Alumnus/bid_status';
-$route['api/v1/alumnus/bid/history'] = 'Alumnus/bid_history';
-$route['api/v1/alumnus/bid/limit'] = 'Alumnus/bid_limit';
-$route['api/v1/alumnus/bid'] = 'Alumnus/bid';
-$route['api/v1/alumnus/bid/(:num)'] = 'Alumnus/bid/$1';
+$route['api/v1/alumnus/bid/slot'] = 'Alumnus_Controller/bid_slot';
+$route['api/v1/alumnus/bid/status'] = 'Alumnus_Controller/bid_status';
+$route['api/v1/alumnus/bid/history'] = 'Alumnus_Controller/bid_history';
+$route['api/v1/alumnus/bid/limit'] = 'Alumnus_Controller/bid_limit';
+$route['api/v1/alumnus/bid'] = 'Alumnus_Controller/bid';
+$route['api/v1/alumnus/bid/(:num)'] = 'Alumnus_Controller/bid/$1';
+
+// Developer
+$route['api/v1/developer/keys']              = 'Developer_Controller/keys';
+$route['api/v1/developer/keys/(:num)/stats'] = 'Developer_Controller/stats/$1';
+$route['api/v1/developer/keys/(:num)']       = 'Developer_Controller/keys/$1';
+
+// API
+$route['api/v1/alumni/today'] = 'Api_Controller/today';

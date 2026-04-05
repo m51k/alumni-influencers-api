@@ -2,7 +2,7 @@
 
 require_once APPPATH . 'controllers/User_Controller.php';
 
-class Alumnus extends User_Controller
+class Alumnus_Controller extends User_Controller
 {
 
     public function __construct()
