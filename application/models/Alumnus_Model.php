@@ -1,5 +1,7 @@
 <?php
 
+require_once APPPATH . 'models/User_Model.php';
+
 class Alumnus_Model extends User_Model
 {
 

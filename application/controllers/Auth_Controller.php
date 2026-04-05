@@ -33,7 +33,7 @@ class Auth_Controller extends User_Controller
             return;
         }
 
-        if (!preg_match('/^[^@]+@eastminster\.ac\.uk$/', $email)) {
+        if (!preg_match('/^[^@]+@gmail\.com$/', $email)) {
             $this->response(['status' => false, 'message' => 'Email must be a valid @iit.ac.lk address'], 400);
             return;
         }
@@ -62,7 +62,7 @@ class Auth_Controller extends User_Controller
 
         $token = $this->Token_Model->create($user_id, 'verify');
 
-        $verify_url = base_url('index.php/api/v1/auth/verify/' . $token);
+        $verify_url = base_url('verify.html?token=' . $token);
         $this->email->from('noreply@eastminster.ac.uk', 'Eastminster Alumni');
         $this->email->to($email);
         $this->email->subject('Verify your account');
@@ -121,7 +121,11 @@ class Auth_Controller extends User_Controller
             'role' => $user->role
         ]);
 
-        $this->response(['status' => true, 'message' => 'Logged in successfully'], 200);
+        $this->response([
+            'status' => true,
+            'message' => 'Logged in successfully',
+            'role' => $user->role
+        ], 200);
     }
 
     // POST /api/v1/auth/logout
@@ -151,7 +155,7 @@ class Auth_Controller extends User_Controller
 
         $token = $this->Token_Model->create($user->id, 'reset');
 
-        $reset_url = base_url('index.php/api/v1/auth/reset-password/' . $token);
+        $reset_url = base_url('reset-password.html?token=' . $token);
         $this->email->from('noreply@eastminster.ac.uk', 'Eastminster Alumni');
         $this->email->to($email);
         $this->email->subject('Reset your password');

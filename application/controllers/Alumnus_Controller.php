@@ -572,7 +572,8 @@ class Alumnus_Controller extends User_Controller
             'bid_id' => $bid->id,
             'slot_date' => $bid->slot_date,
             'amount' => $bid->amount,
-            'bid_status' => $bid->status
+            'bid_status' => $bid->status,
+            'is_winning' => $bid->is_winning
         ], 200);
     }
 

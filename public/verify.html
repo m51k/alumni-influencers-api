@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+<head><title>Verify Email</title></head>
+<body>
+<h2>Email Verification</h2>
+<p id="msg">Verifying...</p>
+<a href="login.html">Go to login</a>
+<script>
+  const token = new URLSearchParams(window.location.search).get('token');
+  if (!token) {
+    document.getElementById('msg').textContent = 'No token provided.';
+  } else {
+    fetch('/index.php/api/v1/auth/verify/' + token)
+            .then(r => r.json())
+            .then(data => {
+              document.getElementById('msg').textContent = data.message;
+            });
+  }
+</script>
+</body>
+</html>

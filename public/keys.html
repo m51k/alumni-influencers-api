@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html>
+<head><title>API Keys</title></head>
+<body>
+<div id="navbar"></div>
+<script src="navbar.js"></script>
+
+<h2>API Keys</h2>
+
+<h3>Generate New Key</h3>
+<input type="text" id="label" placeholder="Key label">
+<button onclick="generateKey()">Generate</button>
+<div id="new-key"></div>
+
+<h3>My Keys</h3>
+<div id="keys"></div>
+
+<p id="msg"></p>
+<button onclick="logout()">Logout</button>
+
+<script>
+    const BASE = '/index.php/api/v1';
+
+    async function loadKeys() {
+        const res = await fetch(BASE + '/developer/keys', { credentials: 'same-origin' });
+        if (res.status === 401) { window.location.href = 'login.html'; return; }
+        const data = await res.json();
+        document.getElementById('keys').innerHTML = '<ul>' +
+            data.keys.map(k =>
+                '<li>' + k.label + ' - ' + (k.is_active ? 'Active' : 'Revoked') +
+                ' - Created: ' + k.created_at +
+                ' <button onclick="viewStats(' + k.id + ')">Stats</button>' +
+                (k.is_active ? ' <button onclick="revokeKey(' + k.id + ')">Revoke</button>' : '') +
+                '</li>'
+            ).join('') + '</ul>';
+    }
+
+    async function generateKey() {
+        const res = await fetch(BASE + '/developer/keys', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            credentials: 'same-origin',
+            body: JSON.stringify({ label: document.getElementById('label').value })
+        });
+        const data = await res.json();
+        if (data.status) {
+            document.getElementById('new-key').innerHTML =
+                '<p><strong>Your key (save this - it will not be shown again):</strong><br>' + data.key + '</p>';
+        }
+        document.getElementById('msg').textContent = data.message;
+        loadKeys();
+    }
+
+    async function viewStats(id) {
+        const res = await fetch(BASE + '/developer/keys/' + id + '/stats', { credentials: 'same-origin' });
+        const data = await res.json();
+        alert('Requests: ' + data.logs.length + '\nLast access: ' + (data.logs[0] ? data.logs[0].accessed_at : 'Never'));
+    }
+
+    async function revokeKey(id) {
+        if (!confirm('Revoke this key?')) return;
+        const res = await fetch(BASE + '/developer/keys/' + id, {
+            method: 'DELETE',
+            credentials: 'same-origin'
+        });
+        const data = await res.json();
+        document.getElementById('msg').textContent = data.message;
+        loadKeys();
+    }
+
+    async function logout() {
+        await fetch(BASE + '/auth/logout', { method: 'POST', credentials: 'same-origin' });
+        window.location.href = 'login.html';
+    }
+
+    loadKeys();
+</script>
+</body>
+</html>

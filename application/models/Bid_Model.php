@@ -1,8 +1,5 @@
 <?php
 
-
-defined('BASEPATH') or exit('No direct script access allowed');
-
 class Bid_Model extends CI_Model
 {
 
@@ -33,11 +30,18 @@ class Bid_Model extends CI_Model
 
     public function get_active_bid($user_id, $slot_date)
     {
-        return $this->db->where('user_id', $user_id)
+        $bid = $this->db->where('user_id', $user_id)
             ->where('slot_date', $slot_date)
             ->where('status', 'active')
             ->get('bids')
             ->row();
+
+        if ($bid) {
+            $highest = $this->get_highest_bid($slot_date);
+            $bid->is_winning = ($highest && $highest->id === $bid->id);
+        }
+
+        return $bid;
     }
 
     public function get_history($user_id)

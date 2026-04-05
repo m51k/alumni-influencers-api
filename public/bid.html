@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html>
+<head><title>Bidding</title></head>
+<body>
+<div id="navbar"></div>
+<script src="navbar.js"></script>
+
+<h2>Bidding</h2>
+<div id="slot"></div>
+<hr>
+
+<h3>Place Bid</h3>
+<input type="number" id="amount" placeholder="Amount" step="0.01">
+<button onclick="placeBid()">Place Bid</button>
+
+<h3>Update Bid</h3>
+<input type="number" id="bid-id" placeholder="Bid ID">
+<input type="number" id="new-amount" placeholder="New amount" step="0.01">
+<button onclick="updateBid()">Update Bid</button>
+
+<h3>Cancel Bid</h3>
+<input type="number" id="cancel-id" placeholder="Bid ID">
+<button onclick="cancelBid()">Cancel Bid</button>
+
+<hr>
+<div id="status"></div>
+<div id="limit"></div>
+<div id="history"></div>
+
+<p id="msg"></p>
+<a href="profile.html">Back to Profile</a>
+<button onclick="logout()">Logout</button>
+
+<script>
+    const BASE = '/index.php/api/v1';
+
+    async function loadBidInfo() {
+        const slot = await fetch(BASE + '/alumnus/bid/slot', { credentials: 'same-origin' }).then(r => r.json());
+        document.getElementById('slot').innerHTML =
+            '<p>Tomorrow\'s slot: ' + slot.slot_date + '</p>' +
+            '<p>Already bid: ' + (slot.already_bid ? 'Yes' : 'No') + '</p>' +
+            '<p>Can bid: ' + (slot.can_bid ? 'Yes' : 'No') + '</p>';
+
+        const status = await fetch(BASE + '/alumnus/bid/status', { credentials: 'same-origin' }).then(r => r.json());
+        document.getElementById('status').innerHTML = status.status
+            ? '<p>Active bid: #' + status.bid_id + ' - £' + status.amount + ' - ' + (status.is_winning ? 'Winning' : 'Not winning') + '</p>'
+            : '<p>No active bid</p>';
+
+        const limit = await fetch(BASE + '/alumnus/bid/limit', { credentials: 'same-origin' }).then(r => r.json());
+        document.getElementById('limit').innerHTML =
+            '<p>Monthly wins: ' + limit.monthly_wins + ' / ' + limit.monthly_limit + ' - Remaining: ' + limit.remaining + '</p>';
+
+        const history = await fetch(BASE + '/alumnus/bid/history', { credentials: 'same-origin' }).then(r => r.json());
+        document.getElementById('history').innerHTML = '<h3>Bid History</h3><ul>' +
+            history.bids.map(b => '<li>#' + b.id + ' - £' + b.amount + ' -' + b.slot_date + ' - ' + b.status + '</li>').join('') + '</ul>';
+    }
+
+    async function placeBid() {
+        const res = await fetch(BASE + '/alumnus/bid', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            credentials: 'same-origin',
+            body: JSON.stringify({ amount: document.getElementById('amount').value })
+        });
+        const data = await res.json();
+        document.getElementById('msg').textContent = data.message;
+        loadBidInfo();
+    }
+
+    async function updateBid() {
+        const id = document.getElementById('bid-id').value;
+        const res = await fetch(BASE + '/alumnus/bid/' + id, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            credentials: 'same-origin',
+            body: JSON.stringify({ amount: document.getElementById('new-amount').value })
+        });
+        const data = await res.json();
+        document.getElementById('msg').textContent = data.message;
+        loadBidInfo();
+    }
+
+    async function cancelBid() {
+        const id = document.getElementById('cancel-id').value;
+        const res = await fetch(BASE + '/alumnus/bid/' + id, {
+            method: 'DELETE',
+            credentials: 'same-origin'
+        });
+        const data = await res.json();
+        document.getElementById('msg').textContent = data.message;
+        loadBidInfo();
+    }
+
+    async function logout() {
+        await fetch(BASE + '/auth/logout', { method: 'POST', credentials: 'same-origin' });
+        window.location.href = 'login.html';
+    }
+
+    loadBidInfo();
+</script>
+</body>
+</html>

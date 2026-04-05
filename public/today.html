@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head><title>Alumni Influencer of the Day</title></head>
+<body>
+<div id="navbar"></div>
+<script src="navbar.js"></script>
+
+<h2>Alumni Influencer of the Day</h2>
+
+<input type="text" id="api-key" placeholder="Enter API key">
+<button onclick="load()">Load</button>
+
+<div id="result"></div>
+
+<script>
+    async function load() {
+        const key = document.getElementById('api-key').value;
+        const res = await fetch('/index.php/api/v1/alumni/today', {
+            headers: { 'Authorization': 'Bearer ' + key }
+        });
+        const data = await res.json();
+
+        if (!data.status) {
+            document.getElementById('result').innerHTML = '<p>' + data.message + '</p>';
+            return;
+        }
+
+        document.getElementById('result').innerHTML =
+            '<h3>Featured Alumnus</h3>' +
+            '<p>Slot date: ' + data.slot_date + '</p>' +
+            '<p>Appearances today: ' + data.appearance_count + '</p>' +
+            (data.profile.image_path ? '<img src="/' + data.profile.image_path + '" width="150"><br>' : '') +
+            (data.profile.linkedin_url ? '<a href="' + data.profile.linkedin_url + '" target="_blank">LinkedIn Profile</a><br>' : '') +
+            '<h4>Degrees</h4><ul>' + data.degrees.map(d => '<li>' + d.qualification + ' - ' + d.institution + '</li>').join('') + '</ul>' +
+            '<h4>Employment</h4><ul>' + data.employment.map(e => '<li>' + e.role + ' at ' + e.company + '</li>').join('') + '</ul>' +
+            '<h4>Certifications</h4><ul>' + data.certifications.map(c => '<li>' + c.title + ' - ' + c.issuer + '</li>').join('') + '</ul>' +
+            '<h4>Courses</h4><ul>' + data.courses.map(c => '<li>' + c.title + ' - ' + c.provider + '</li>').join('') + '</ul>';
+    }
+</script>
+</body>
+</html>

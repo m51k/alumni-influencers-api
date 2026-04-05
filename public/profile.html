@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html>
+<head><title>My Profile</title></head>
+<body>
+<div id="navbar"></div>
+<script src="navbar.js"></script>
+
+<h2>My Profile</h2>
+<div id="profile"></div>
+<hr>
+
+<h3>Update LinkedIn URL</h3>
+<input type="text" id="linkedin" placeholder="LinkedIn URL">
+<button onclick="updateProfile()">Update</button>
+
+<h3>Upload Profile Image</h3>
+<input type="file" id="image">
+<button onclick="uploadImage()">Upload</button>
+
+<hr>
+<h3>Degrees</h3>
+<div id="degrees"></div>
+<input type="text" id="deg-institution" placeholder="Institution">
+<input type="text" id="deg-qualification" placeholder="Qualification">
+<input type="number" id="deg-year" placeholder="Grad year">
+<button onclick="addDegree()">Add Degree</button>
+
+<hr>
+<h3>Certifications</h3>
+<div id="certifications"></div>
+<input type="text" id="cert-title" placeholder="Title">
+<input type="text" id="cert-issuer" placeholder="Issuer">
+<input type="date" id="cert-issued">
+<button onclick="addCertification()">Add Certification</button>
+
+<hr>
+<h3>Licences</h3>
+<div id="licences"></div>
+<input type="text" id="lic-title" placeholder="Title">
+<input type="text" id="lic-issuer" placeholder="Issuer">
+<input type="date" id="lic-expires">
+<button onclick="addLicence()">Add Licence</button>
+
+<hr>
+<h3>Courses</h3>
+<div id="courses"></div>
+<input type="text" id="course-title" placeholder="Title">
+<input type="text" id="course-provider" placeholder="Provider">
+<input type="date" id="course-completed">
+<button onclick="addCourse()">Add Course</button>
+
+<hr>
+<h3>Employment</h3>
+<div id="employment"></div>
+<input type="text" id="emp-company" placeholder="Company">
+<input type="text" id="emp-role" placeholder="Role">
+<input type="date" id="emp-start">
+<input type="date" id="emp-end" placeholder="End date (optional)">
+<button onclick="addEmployment()">Add Employment</button>
+
+<hr>
+<p id="msg"></p>
+<a href="bid.html">Go to Bidding</a>
+<button onclick="logout()">Logout</button>
+
+<script>
+  const BASE = '/index.php/api/v1';
+
+  async function loadProfile() {
+    const res = await fetch(BASE + '/alumnus/profile', { credentials: 'same-origin' });
+    if (res.status === 401) { window.location.href = 'login.html'; return; }
+    const data = await res.json();
+
+    document.getElementById('profile').innerHTML =
+            '<p>LinkedIn: ' + (data.profile.linkedin_url || 'Not set') + '</p>' +
+            '<p>Complete: ' + (data.profile.is_complete ? 'Yes' : 'No') + '</p>' +
+            (data.profile.image_path ? '<img src="/' + data.profile.image_path + '" width="100">' : '');
+
+    document.getElementById('degrees').innerHTML = '<ul>' +
+            data.degrees.map(d =>
+                    '<li>' + d.qualification + ' - ' + d.institution + ' (' + (d.grad_year || 'N/A') + ')' +
+                    ' <button onclick="deleteDegree(' + d.id + ')">Delete</button></li>'
+            ).join('') + '</ul>';
+
+    document.getElementById('certifications').innerHTML = '<ul>' +
+            data.certifications.map(c =>
+                    '<li>' + c.title + ' - ' + c.issuer +
+                    ' <button onclick="deleteCertification(' + c.id + ')">Delete</button></li>'
+            ).join('') + '</ul>';
+
+    document.getElementById('licences').innerHTML = '<ul>' +
+            data.licences.map(l =>
+                    '<li>' + l.title + ' - ' + l.issuer +
+                    ' <button onclick="deleteLicence(' + l.id + ')">Delete</button></li>'
+            ).join('') + '</ul>';
+
+    document.getElementById('courses').innerHTML = '<ul>' +
+            data.courses.map(c =>
+                    '<li>' + c.title + ' - ' + c.provider +
+                    ' <button onclick="deleteCourse(' + c.id + ')">Delete</button></li>'
+            ).join('') + '</ul>';
+
+    document.getElementById('employment').innerHTML = '<ul>' +
+            data.employment.map(e =>
+                    '<li>' + e.role + ' at ' + e.company + ' (' + e.start_date + ' - ' + (e.end_date || 'Present') + ')' +
+                    ' <button onclick="deleteEmployment(' + e.id + ')">Delete</button></li>'
+            ).join('') + '</ul>';
+  }
+
+  async function updateProfile() {
+    const res = await fetch(BASE + '/alumnus/profile', {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'same-origin',
+      body: JSON.stringify({ linkedin_url: document.getElementById('linkedin').value })
+    });
+    const data = await res.json();
+    document.getElementById('msg').textContent = data.message;
+    loadProfile();
+  }
+
+  async function uploadImage() {
+    const formData = new FormData();
+    formData.append('image', document.getElementById('image').files[0]);
+    const res = await fetch(BASE + '/alumnus/profile/image', {
+      method: 'POST',
+      credentials: 'same-origin',
+      body: formData
+    });
+    const data = await res.json();
+    document.getElementById('msg').textContent = data.message;
+    loadProfile();
+  }
+
+  async function addDegree() {
+    const res = await fetch(BASE + '/alumnus/degrees', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'same-origin',
+      body: JSON.stringify({
+        institution:   document.getElementById('deg-institution').value,
+        qualification: document.getElementById('deg-qualification').value,
+        grad_year:     document.getElementById('deg-year').value
+      })
+    });
+    const data = await res.json();
+    document.getElementById('msg').textContent = data.message;
+    loadProfile();
+  }
+
+  async function deleteDegree(id) {
+    await fetch(BASE + '/alumnus/degrees/' + id, { method: 'DELETE', credentials: 'same-origin' });
+    loadProfile();
+  }
+
+  async function addCertification() {
+    const res = await fetch(BASE + '/alumnus/certifications', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'same-origin',
+      body: JSON.stringify({
+        title:     document.getElementById('cert-title').value,
+        issuer:    document.getElementById('cert-issuer').value,
+        issued_at: document.getElementById('cert-issued').value
+      })
+    });
+    const data = await res.json();
+    document.getElementById('msg').textContent = data.message;
+    loadProfile();
+  }
+
+  async function deleteCertification(id) {
+    await fetch(BASE + '/alumnus/certifications/' + id, { method: 'DELETE', credentials: 'same-origin' });
+    loadProfile();
+  }
+
+  async function addLicence() {
+    const res = await fetch(BASE + '/alumnus/certifications', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'same-origin',
+      body: JSON.stringify({
+        title:      document.getElementById('lic-title').value,
+        issuer:     document.getElementById('lic-issuer').value,
+        expires_at: document.getElementById('lic-expires').value
+      })
+    });
+    const data = await res.json();
+    document.getElementById('msg').textContent = data.message;
+    loadProfile();
+  }
+
+  async function deleteLicence(id) {
+    await fetch(BASE + '/alumnus/licences/' + id, { method: 'DELETE', credentials: 'same-origin' });
+    loadProfile();
+  }
+
+  async function addCourse() {
+    const res = await fetch(BASE + '/alumnus/courses', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'same-origin',
+      body: JSON.stringify({
+        title:        document.getElementById('course-title').value,
+        provider:     document.getElementById('course-provider').value,
+        completed_at: document.getElementById('course-completed').value
+      })
+    });
+    const data = await res.json();
+    document.getElementById('msg').textContent = data.message;
+    loadProfile();
+  }
+
+  async function deleteCourse(id) {
+    await fetch(BASE + '/alumnus/courses/' + id, { method: 'DELETE', credentials: 'same-origin' });
+    loadProfile();
+  }
+
+  async function addEmployment() {
+    const res = await fetch(BASE + '/alumnus/employment', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'same-origin',
+      body: JSON.stringify({
+        company:    document.getElementById('emp-company').value,
+        role:       document.getElementById('emp-role').value,
+        start_date: document.getElementById('emp-start').value,
+        end_date:   document.getElementById('emp-end').value
+      })
+    });
+    const data = await res.json();
+    document.getElementById('msg').textContent = data.message;
+    loadProfile();
+  }
+
+  async function deleteEmployment(id) {
+    await fetch(BASE + '/alumnus/employment/' + id, { method: 'DELETE', credentials: 'same-origin' });
+    loadProfile();
+  }
+
+  async function logout() {
+    await fetch(BASE + '/auth/logout', { method: 'POST', credentials: 'same-origin' });
+    window.location.href = 'login.html';
+  }
+
+  loadProfile();
+</script>
+</body>
+</html>
