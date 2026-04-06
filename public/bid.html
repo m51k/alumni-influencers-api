@@ -22,14 +22,18 @@
 <input type="number" id="cancel-id" placeholder="Bid ID">
 <button onclick="cancelBid()">Cancel Bid</button>
 
+<h3>Record Event Attendance</h3>
+<input type="text" id="event-name" placeholder="Event name">
+<input type="date" id="event-date">
+<button onclick="recordEvent()">Record Attendance</button>
+<div id="events"></div>
+
 <hr>
 <div id="status"></div>
 <div id="limit"></div>
 <div id="history"></div>
 
 <p id="msg"></p>
-<a href="profile.html">Back to Profile</a>
-<button onclick="logout()">Logout</button>
 
 <script>
     const BASE = '/index.php/api/v1';
@@ -91,12 +95,30 @@
         loadBidInfo();
     }
 
-    async function logout() {
-        await fetch(BASE + '/auth/logout', { method: 'POST', credentials: 'same-origin' });
-        window.location.href = 'login.html';
+    async function recordEvent() {
+        const res = await fetch(BASE + '/alumnus/event', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            credentials: 'same-origin',
+            body: JSON.stringify({
+                event_name: document.getElementById('event-name').value,
+                event_date: document.getElementById('event-date').value
+            })
+        });
+        const data = await res.json();
+        document.getElementById('msg').textContent = data.message;
+        loadBidInfo();
+    }
+
+    async function loadEvents() {
+        const res = await fetch(BASE + '/alumnus/event', { credentials: 'same-origin' }).then(r => r.json());
+        document.getElementById('events').innerHTML =
+            '<p>Monthly limit: ' + res.monthly_limit + '</p>' +
+            '<ul>' + res.events.map(e => '<li>' + e.event_name + ' — ' + e.event_date + '</li>').join('') + '</ul>';
     }
 
     loadBidInfo();
+    loadEvents();
 </script>
 </body>
 </html>

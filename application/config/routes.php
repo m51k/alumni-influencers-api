@@ -83,6 +83,8 @@ $route['api/v1/alumnus/bid/limit'] = 'Alumnus_Controller/bid_limit';
 $route['api/v1/alumnus/bid'] = 'Alumnus_Controller/bid';
 $route['api/v1/alumnus/bid/(:num)'] = 'Alumnus_Controller/bid/$1';
 
+$route['api/v1/alumnus/event'] = 'Alumnus_Controller/event';
+
 // Developer
 $route['api/v1/developer/keys']              = 'Developer_Controller/keys';
 $route['api/v1/developer/keys/(:num)/stats'] = 'Developer_Controller/stats/$1';

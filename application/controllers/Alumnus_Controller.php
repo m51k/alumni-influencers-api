@@ -598,4 +598,38 @@ class Alumnus_Controller extends User_Controller
             'remaining' => $monthly_limit - $monthly_wins
         ], 200);
     }
+
+    // POST /api/v1/alumnus/event
+    public function event_post() {
+        $event_name = $this->post('event_name');
+        $event_date = $this->post('event_date');
+
+        if (!$event_name || !$event_date) {
+            $this->response(['status' => false, 'message' => 'Event name and date are required'], 400);
+            return;
+        }
+
+        $this->db->insert('event_attendance', [
+            'user_id'    => $this->current_user,
+            'event_name' => $event_name,
+            'event_date' => $event_date
+        ]);
+
+        $this->response(['status' => true, 'message' => 'Event attendance recorded'], 201);
+    }
+
+    // GET /api/v1/alumnus/event
+    public function event_get() {
+        $events = $this->db->where('user_id', $this->current_user)
+            ->get('event_attendance')
+            ->result();
+
+        $limit = $this->Bid_Model->get_monthly_limit($this->current_user);
+
+        $this->response([
+            'status'         => true,
+            'events'         => $events,
+            'monthly_limit'  => $limit
+        ], 200);
+    }
 }
