@@ -27,7 +27,7 @@
         const data = await res.json();
         document.getElementById('keys').innerHTML = '<ul>' +
             data.keys.map(k =>
-                '<li>' + k.label + ' - ' + (k.is_active ? 'Active' : 'Revoked') +
+                '<li>' + k.label + ' - ' + (k.is_active == 1 ? 'Active' : 'Revoked') +
                 ' - Created: ' + k.created_at +
                 ' <button onclick="viewStats(' + k.id + ')">Stats</button>' +
                 (k.is_active ? ' <button onclick="revokeKey(' + k.id + ')">Revoke</button>' : '') +

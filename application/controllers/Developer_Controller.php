@@ -28,6 +28,7 @@ class Developer_Controller extends User_Controller
         $this->response([
             'status' => true,
             'message' => 'API key generated. Store this key safely - it will not be shown again.',
+            'id' => $this->db->insert_id(),
             'key' => $key
         ], 201);
     }

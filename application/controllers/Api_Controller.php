@@ -1,5 +1,7 @@
 <?php
 
+require_once APPPATH . 'controllers/User_Controller.php';
+
 class Api_Controller extends User_Controller {
 
     public function __construct() {
