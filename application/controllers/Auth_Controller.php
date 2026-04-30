@@ -193,4 +193,16 @@ class Auth_Controller extends User_Controller
 
         $this->response(['status' => true, 'message' => 'Password reset successfully'], 200);
     }
+
+    // GET /api/v1/auth/role
+    public function role_get() {
+        if (!$this->session->userdata('user_id')) {
+            $this->response(['status' => false, 'message' => 'Not authenticated'], 401);
+            return;
+        }
+        $this->response([
+            'status' => true,
+            'role'   => $this->session->userdata('role')
+        ], 200);
+    }
 }

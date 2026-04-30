@@ -12,9 +12,17 @@
 <a href="register.html">Register</a> |
 <a href="forgot-password.html">Forgot password?</a>
 <script>
-    fetch('/index.php/api/v1/alumnus/profile', {credentials: 'same-origin'})
+    fetch('/index.php/api/v1/alumnus/profile', { credentials: 'same-origin' })
         .then(res => {
-            if (res.ok || res.status === 403) window.location.href = 'today.html';
+            if (res.ok) window.location.href = 'today.html';
+            if (res.status === 403) {
+                fetch('/index.php/api/v1/auth/role', { credentials: 'same-origin' })
+                    .then(r => r.json())
+                    .then(data => {
+                        if (data.role === 'staff') window.location.href = 'analytics/index.html';
+                        else window.location.href = 'today.html';
+                    });
+            }
         });
     document.getElementById('form').addEventListener('submit', async function (e) {
         e.preventDefault();
@@ -29,7 +37,11 @@
         });
         const data = await res.json();
         if (data.status) {
-            window.location.href = 'today.html';
+            if (data.role === 'staff') {
+                window.location.href = 'analytics/index.html';
+            } else {
+                window.location.href = 'today.html';
+            }
         } else {
             document.getElementById('msg').textContent = data.message;
         }

@@ -61,6 +61,7 @@ $route['api/v1/auth/login'] = 'Auth_Controller/login';
 $route['api/v1/auth/logout'] = 'Auth_Controller/logout';
 $route['api/v1/auth/forgot-password'] = 'Auth_Controller/forgot_password';
 $route['api/v1/auth/reset-password'] = 'Auth_Controller/reset_password';
+$route['api/v1/auth/role'] = 'Auth_Controller/role';
 
 // Alumnus
 $route['api/v1/alumnus/profile'] = 'Alumnus_Controller/profile';
