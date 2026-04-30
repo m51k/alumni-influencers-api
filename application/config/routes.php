@@ -86,9 +86,21 @@ $route['api/v1/alumnus/bid/(:num)'] = 'Alumnus_Controller/bid/$1';
 $route['api/v1/alumnus/event'] = 'Alumnus_Controller/event';
 
 // Developer
-$route['api/v1/developer/keys']              = 'Developer_Controller/keys';
+$route['api/v1/developer/keys'] = 'Developer_Controller/keys';
 $route['api/v1/developer/keys/(:num)/stats'] = 'Developer_Controller/stats/$1';
-$route['api/v1/developer/keys/(:num)']       = 'Developer_Controller/keys/$1';
+$route['api/v1/developer/keys/(:num)'] = 'Developer_Controller/keys/$1';
 
 // API
 $route['api/v1/alumni/today'] = 'Api_Controller/today';
+
+// Analytics
+$route['api/v1/analytics/alumni'] = 'Analytics_Controller/alumni';
+$route['api/v1/analytics/skills-gap'] = 'Analytics_Controller/skills_gap';
+$route['api/v1/analytics/employment'] = 'Analytics_Controller/employment';
+$route['api/v1/analytics/job-titles'] = 'Analytics_Controller/job_titles';
+$route['api/v1/analytics/employers'] = 'Analytics_Controller/employers';
+$route['api/v1/analytics/geographic'] = 'Analytics_Controller/geographic';
+$route['api/v1/analytics/certifications'] = 'Analytics_Controller/certifications';
+$route['api/v1/analytics/courses'] = 'Analytics_Controller/courses';
+$route['api/v1/analytics/trends'] = 'Analytics_Controller/trends';
+$route['api/v1/analytics/filters'] = 'Analytics_Controller/filters';
