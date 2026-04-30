@@ -38,8 +38,8 @@ class Auth_Controller extends User_Controller
             return;
         }
 
-        if (!in_array($role, ['alumnus', 'developer'])) {
-            $this->response(['status' => false, 'message' => 'Role must be alumnus or developer'], 400);
+        if (!in_array($role, ['alumnus', 'developer', 'staff'])) {
+            $this->response(['status' => false, 'message' => 'Role must be alumnus, developer or staff'], 400);
             return;
         }
 

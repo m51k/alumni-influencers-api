@@ -27,6 +27,11 @@ class Api_Controller extends User_Controller {
             return;
         }
 
+        if (strpos($api_key->permissions, 'read:alumni_of_day') === FALSE) {
+            $this->response(['status' => false, 'message' => 'Insufficient permissions'], 403);
+            return;
+        }
+
         $this->Api_Key_Model->log_access(
             $api_key->id,
             $this->uri->uri_string(),

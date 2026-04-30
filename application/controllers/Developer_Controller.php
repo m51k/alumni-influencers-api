@@ -17,19 +17,33 @@ class Developer_Controller extends User_Controller
     public function keys_post()
     {
         $label = $this->post('label');
+        $permissions = $this->post('permissions');
 
         if (!$label) {
             $this->response(['status' => false, 'message' => 'Label is required'], 400);
             return;
         }
 
-        $key = $this->Api_Key_Model->create($this->current_user, $label);
+        $valid_permissions = ['read:alumni_of_day', 'read:alumni', 'read:analytics'];
+        $requested = $permissions ? explode(',', $permissions) : ['read:alumni_of_day'];
+
+        foreach ($requested as $p) {
+            if (!in_array(trim($p), $valid_permissions)) {
+                $this->response(['status' => false, 'message' => 'Invalid permission: ' . trim($p)], 400);
+                return;
+            }
+        }
+
+        $permissions_string = implode(',', array_map('trim', $requested));
+
+        $key = $this->Api_Key_Model->create($this->current_user, $label, $permissions_string);
 
         $this->response([
             'status' => true,
-            'message' => 'API key generated. Store this key safely - it will not be shown again.',
+            'message' => 'API key generated. Store this key safely — it will not be shown again.',
             'id' => $this->db->insert_id(),
-            'key' => $key
+            'key' => $key,
+            'permissions' => $permissions_string
         ], 201);
     }
 

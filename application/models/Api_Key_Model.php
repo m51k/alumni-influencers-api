@@ -8,7 +8,7 @@ class Api_Key_Model extends CI_Model
         parent::__construct();
     }
 
-    public function create($user_id, $label)
+    public function create($user_id, $label, $permissions = 'read:alumni_of_day')
     {
         $key = bin2hex(random_bytes(32));
 
@@ -16,6 +16,7 @@ class Api_Key_Model extends CI_Model
             'user_id' => $user_id,
             'key_hash' => hash('sha256', $key),
             'label' => $label,
+            'permissions' => $permissions,
             'is_active' => 1,
             'created_at' => date('Y-m-d H:i:s')
         ]);
