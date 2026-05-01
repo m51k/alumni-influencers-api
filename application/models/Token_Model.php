@@ -10,6 +10,7 @@ class Token_Model extends CI_Model
 
     public function create($user_id, $type)
     {
+        // SHA256
         $token = bin2hex(random_bytes(32));
 
         $this->db->insert('tokens', [

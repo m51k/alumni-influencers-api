@@ -62,6 +62,7 @@ class Api_Controller extends User_Controller {
         ], 200);
     }
 
+    // winner selection runs on first request after midnight
     private function select_winner() {
         $today = date('Y-m-d');
 

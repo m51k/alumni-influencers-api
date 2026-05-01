@@ -20,6 +20,7 @@ class Analytics_Model extends CI_Model
 
     public function get_alumni($programme = NULL, $grad_year = NULL, $industry = NULL)
     {
+        // GROUP_CONCAT combines multiple employment roles into a single comma-separated string so one row is returned per alumnus
         $this->db->select('users.id, users.email, profiles.programme, profiles.location, profiles.linkedin_url, profiles.image_path, profiles.is_complete, GROUP_CONCAT(employment.role SEPARATOR ", ") as roles')
             ->from('users')
             ->join('profiles', 'profiles.user_id = users.id')

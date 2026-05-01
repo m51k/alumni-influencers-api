@@ -71,6 +71,7 @@ class Bid_Model extends CI_Model
                 ->count_all_results('event_attendance') > 0;
     }
 
+    // Alumni who attended a university event this month get an extra bid
     public function get_monthly_limit($user_id)
     {
         return $this->has_event_attendance($user_id) ? 4 : 3;

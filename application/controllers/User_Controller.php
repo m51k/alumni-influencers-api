@@ -45,6 +45,7 @@ class User_Controller extends RestController
         }
     }
 
+    // rate limit checker within a 60-second window
     private function check_rate_limit()
     {
         $ip = $this->input->ip_address();

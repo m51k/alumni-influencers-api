@@ -10,6 +10,7 @@ class Api_Key_Model extends CI_Model
 
     public function create($user_id, $label, $permissions = 'read:alumni_of_day')
     {
+        // SHA256
         $key = bin2hex(random_bytes(32));
 
         $this->db->insert('api_keys', [
