@@ -56,6 +56,14 @@ class Alumnus_Controller extends User_Controller
             $data['linkedin_url'] = $linkedin;
         }
 
+        if ($this->put('programme')) {
+            $data['programme'] = $this->put('programme');
+        }
+
+        if ($this->put('location')) {
+            $data['location'] = $this->put('location');
+        }
+
         if (empty($data)) {
             $this->response(['status' => false, 'message' => 'No data provided'], 400);
             return;
@@ -600,7 +608,8 @@ class Alumnus_Controller extends User_Controller
     }
 
     // POST /api/v1/alumnus/event
-    public function event_post() {
+    public function event_post()
+    {
         $event_name = $this->post('event_name');
         $event_date = $this->post('event_date');
 
@@ -610,7 +619,7 @@ class Alumnus_Controller extends User_Controller
         }
 
         $this->db->insert('event_attendance', [
-            'user_id'    => $this->current_user,
+            'user_id' => $this->current_user,
             'event_name' => $event_name,
             'event_date' => $event_date
         ]);
@@ -619,7 +628,8 @@ class Alumnus_Controller extends User_Controller
     }
 
     // GET /api/v1/alumnus/event
-    public function event_get() {
+    public function event_get()
+    {
         $events = $this->db->where('user_id', $this->current_user)
             ->get('event_attendance')
             ->result();
@@ -627,9 +637,9 @@ class Alumnus_Controller extends User_Controller
         $limit = $this->Bid_Model->get_monthly_limit($this->current_user);
 
         $this->response([
-            'status'         => true,
-            'events'         => $events,
-            'monthly_limit'  => $limit
+            'status' => true,
+            'events' => $events,
+            'monthly_limit' => $limit
         ], 200);
     }
 }

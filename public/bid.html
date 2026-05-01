@@ -1,70 +1,115 @@
 <!DOCTYPE html>
 <html>
-<head><title>Bidding</title></head>
-<body>
+<head>
+    <title>Bidding</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 min-h-screen">
 <div id="navbar"></div>
 <script src="navbar.js"></script>
 
-<h2>Bidding</h2>
-<div id="slot"></div>
-<hr>
+<div class="max-w-3xl mx-auto p-6 space-y-6">
+    <h2 class="text-2xl font-bold text-gray-800">Bidding</h2>
 
-<h3>Place Bid</h3>
-<input type="number" id="amount" placeholder="Amount" step="0.01">
-<button onclick="placeBid()">Place Bid</button>
+    <!-- Slot info -->
+    <div id="slot" class="bg-white rounded shadow p-4 text-sm text-gray-700 space-y-1"></div>
 
-<h3>Update Bid</h3>
-<input type="number" id="bid-id" placeholder="Bid ID">
-<input type="number" id="new-amount" placeholder="New amount" step="0.01">
-<button onclick="updateBid()">Update Bid</button>
+    <!-- Bid status -->
+    <div id="status" class="bg-white rounded shadow p-4 text-sm text-gray-700"></div>
 
-<h3>Cancel Bid</h3>
-<input type="number" id="cancel-id" placeholder="Bid ID">
-<button onclick="cancelBid()">Cancel Bid</button>
+    <!-- Monthly limit -->
+    <div id="limit" class="bg-white rounded shadow p-4 text-sm text-gray-700"></div>
 
-<h3>Record Event Attendance</h3>
-<input type="text" id="event-name" placeholder="Event name">
-<input type="date" id="event-date">
-<button onclick="recordEvent()">Record Attendance</button>
-<div id="events"></div>
+    <!-- Place bid -->
+    <div class="bg-white rounded shadow p-4 space-y-3">
+        <h3 class="font-semibold text-gray-700">Place Bid</h3>
+        <div class="flex gap-3">
+            <input type="number" id="amount" placeholder="Amount" step="0.01"
+                   class="flex-1 border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+            <button onclick="placeBid()"
+                    class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition text-sm">Place Bid
+            </button>
+        </div>
+    </div>
 
-<hr>
-<div id="status"></div>
-<div id="limit"></div>
-<div id="history"></div>
+    <!-- Update bid -->
+    <div class="bg-white rounded shadow p-4 space-y-3">
+        <h3 class="font-semibold text-gray-700">Update Bid</h3>
+        <div class="flex gap-3">
+            <input type="number" id="bid-id" placeholder="Bid ID"
+                   class="w-28 border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+            <input type="number" id="new-amount" placeholder="New amount" step="0.01"
+                   class="flex-1 border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+            <button onclick="updateBid()"
+                    class="bg-yellow-500 text-white px-4 py-2 rounded hover:bg-yellow-600 transition text-sm">Update
+            </button>
+        </div>
+    </div>
 
-<p id="msg"></p>
+    <!-- Cancel bid -->
+    <div class="bg-white rounded shadow p-4 space-y-3">
+        <h3 class="font-semibold text-gray-700">Cancel Bid</h3>
+        <div class="flex gap-3">
+            <input type="number" id="cancel-id" placeholder="Bid ID"
+                   class="w-28 border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+            <button onclick="cancelBid()"
+                    class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 transition text-sm">Cancel Bid
+            </button>
+        </div>
+    </div>
+
+    <!-- Event attendance -->
+    <div class="bg-white rounded shadow p-4 space-y-3">
+        <h3 class="font-semibold text-gray-700">Record Event Attendance</h3>
+        <div id="events" class="text-sm text-gray-600 mb-2"></div>
+        <div class="flex flex-wrap gap-3">
+            <input type="text" id="event-name" placeholder="Event name"
+                   class="flex-1 border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+            <input type="date" id="event-date"
+                   class="border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+            <button onclick="recordEvent()"
+                    class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 transition text-sm">Record
+            </button>
+        </div>
+    </div>
+
+    <!-- Bid history -->
+    <div id="history" class="bg-white rounded shadow p-4 text-sm text-gray-700"></div>
+
+    <p id="msg" class="text-sm text-gray-600"></p>
+</div>
 
 <script>
     const BASE = '/index.php/api/v1';
 
     async function loadBidInfo() {
-        const slot = await fetch(BASE + '/alumnus/bid/slot', { credentials: 'same-origin' }).then(r => r.json());
+        const slot = await fetch(BASE + '/alumnus/bid/slot', {credentials: 'same-origin'}).then(r => r.json());
         document.getElementById('slot').innerHTML =
-            '<p>Tomorrow\'s slot: ' + slot.slot_date + '</p>' +
-            '<p>Already bid: ' + (slot.already_bid ? 'Yes' : 'No') + '</p>' +
-            '<p>Can bid: ' + (slot.can_bid ? 'Yes' : 'No') + '</p>';
+            '<p class="font-medium text-gray-800">Tomorrow\'s slot: ' + slot.slot_date + '</p>' +
+            '<p>Already bid: ' + (slot.already_bid ? '<span class="text-yellow-600">Yes</span>' : '<span class="text-gray-500">No</span>') + '</p>' +
+            '<p>Can bid: ' + (slot.can_bid ? '<span class="text-green-600">Yes</span>' : '<span class="text-red-400">No</span>') + '</p>';
 
-        const status = await fetch(BASE + '/alumnus/bid/status', { credentials: 'same-origin' }).then(r => r.json());
+        const status = await fetch(BASE + '/alumnus/bid/status', {credentials: 'same-origin'}).then(r => r.json());
         document.getElementById('status').innerHTML = status.status
-            ? '<p>Active bid: #' + status.bid_id + ' - £' + status.amount + ' - ' + (status.is_winning ? 'Winning' : 'Not winning') + '</p>'
-            : '<p>No active bid</p>';
+            ? '<p>Active bid: <strong>#' + status.bid_id + '</strong> — £' + status.amount +
+            ' — <span class="' + (status.is_winning ? 'text-green-600' : 'text-red-400') + '">' + (status.is_winning ? 'Winning' : 'Not winning') + '</span></p>'
+            : '<p class="text-gray-400">No active bid</p>';
 
-        const limit = await fetch(BASE + '/alumnus/bid/limit', { credentials: 'same-origin' }).then(r => r.json());
+        const limit = await fetch(BASE + '/alumnus/bid/limit', {credentials: 'same-origin'}).then(r => r.json());
         document.getElementById('limit').innerHTML =
-            '<p>Monthly wins: ' + limit.monthly_wins + ' / ' + limit.monthly_limit + ' - Remaining: ' + limit.remaining + '</p>';
+            '<p>Monthly wins: <strong>' + limit.monthly_wins + ' / ' + limit.monthly_limit + '</strong> — Remaining: ' + limit.remaining + '</p>';
 
-        const history = await fetch(BASE + '/alumnus/bid/history', { credentials: 'same-origin' }).then(r => r.json());
-        document.getElementById('history').innerHTML = '<h3>Bid History</h3><ul>' +
-            history.bids.map(b => '<li>#' + b.id + ' - £' + b.amount + ' -' + b.slot_date + ' - ' + b.status + '</li>').join('') + '</ul>';
+        const history = await fetch(BASE + '/alumnus/bid/history', {credentials: 'same-origin'}).then(r => r.json());
+        document.getElementById('history').innerHTML = '<h3 class="font-semibold text-gray-700 mb-2">Bid History</h3><ul class="list-disc list-inside space-y-1">' +
+            history.bids.map(b =>
+                '<li>#' + b.id + ' — £' + b.amount + ' — ' + b.slot_date + ' — <span class="' + (b.status === 'active' ? 'text-green-600' : 'text-gray-400') + '">' + b.status + '</span></li>'
+            ).join('') + '</ul>';
     }
 
     async function placeBid() {
         const res = await fetch(BASE + '/alumnus/bid', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            credentials: 'same-origin',
-            body: JSON.stringify({ amount: document.getElementById('amount').value })
+            method: 'POST', headers: {'Content-Type': 'application/json'}, credentials: 'same-origin',
+            body: JSON.stringify({amount: document.getElementById('amount').value})
         });
         const data = await res.json();
         document.getElementById('msg').textContent = data.message;
@@ -74,10 +119,8 @@
     async function updateBid() {
         const id = document.getElementById('bid-id').value;
         const res = await fetch(BASE + '/alumnus/bid/' + id, {
-            method: 'PUT',
-            headers: { 'Content-Type': 'application/json' },
-            credentials: 'same-origin',
-            body: JSON.stringify({ amount: document.getElementById('new-amount').value })
+            method: 'PUT', headers: {'Content-Type': 'application/json'}, credentials: 'same-origin',
+            body: JSON.stringify({amount: document.getElementById('new-amount').value})
         });
         const data = await res.json();
         document.getElementById('msg').textContent = data.message;
@@ -86,10 +129,7 @@
 
     async function cancelBid() {
         const id = document.getElementById('cancel-id').value;
-        const res = await fetch(BASE + '/alumnus/bid/' + id, {
-            method: 'DELETE',
-            credentials: 'same-origin'
-        });
+        const res = await fetch(BASE + '/alumnus/bid/' + id, {method: 'DELETE', credentials: 'same-origin'});
         const data = await res.json();
         document.getElementById('msg').textContent = data.message;
         loadBidInfo();
@@ -97,9 +137,7 @@
 
     async function recordEvent() {
         const res = await fetch(BASE + '/alumnus/event', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            credentials: 'same-origin',
+            method: 'POST', headers: {'Content-Type': 'application/json'}, credentials: 'same-origin',
             body: JSON.stringify({
                 event_name: document.getElementById('event-name').value,
                 event_date: document.getElementById('event-date').value
@@ -107,14 +145,16 @@
         });
         const data = await res.json();
         document.getElementById('msg').textContent = data.message;
+        loadEvents();
         loadBidInfo();
     }
 
     async function loadEvents() {
-        const res = await fetch(BASE + '/alumnus/event', { credentials: 'same-origin' }).then(r => r.json());
+        const res = await fetch(BASE + '/alumnus/event', {credentials: 'same-origin'}).then(r => r.json());
         document.getElementById('events').innerHTML =
-            '<p>Monthly limit: ' + res.monthly_limit + '</p>' +
-            '<ul>' + res.events.map(e => '<li>' + e.event_name + ' — ' + e.event_date + '</li>').join('') + '</ul>';
+            '<p class="text-xs text-gray-500 mb-1">Monthly limit: <strong>' + res.monthly_limit + '</strong></p>' +
+            '<ul class="list-disc list-inside space-y-0.5">' +
+            res.events.map(e => '<li>' + e.event_name + ' — ' + e.event_date + '</li>').join('') + '</ul>';
     }
 
     loadBidInfo();

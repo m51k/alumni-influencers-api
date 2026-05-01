@@ -1,6 +1,6 @@
 <?php
 
-require_once APPPATH . 'core/User_Controller.php';
+require_once APPPATH . 'controllers/User_Controller.php';
 
 class Analytics_Controller extends User_Controller
 {

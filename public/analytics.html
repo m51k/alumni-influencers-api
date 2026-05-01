@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>University Analytics Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body class="bg-gray-100 min-h-screen">
+
+<!-- Navbar -->
+<nav class="bg-white border-b border-gray-200 px-6 py-3 flex items-center text-sm">
+    <span class="font-bold text-gray-800 mr-6">University Analytics</span>
+    <a href="#charts" class="text-gray-600 hover:text-blue-600 mr-4">Charts</a>
+    <a href="#alumni" class="text-gray-600 hover:text-blue-600 mr-4">Alumni</a>
+    <a href="#export" class="text-gray-600 hover:text-blue-600 mr-4">Export</a>
+    <a href="#" onclick="logout()" class="ml-auto text-red-500 hover:text-red-700">Logout</a>
+</nav>
+
+<div class="max-w-6xl mx-auto p-6 space-y-8">
+
+    <h2 class="text-2xl font-bold text-gray-800">Analytics Dashboard</h2>
+
+    <!-- Filters -->
+    <div class="bg-white rounded shadow p-4 flex gap-4 items-end flex-wrap">
+        <div>
+            <label class="block text-xs text-gray-500 mb-1">Programme</label>
+            <select id="programme" onchange="loadAll()"
+                    class="border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <option value="">All Programmes</option>
+            </select>
+        </div>
+        <div>
+            <label class="block text-xs text-gray-500 mb-1">Graduation Year</label>
+            <select id="grad_year" onchange="loadAll()"
+                    class="border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <option value="">All Years</option>
+            </select>
+        </div>
+        <div class="text-sm text-gray-500">
+            Total alumni: <span id="alumni-count" class="font-semibold text-gray-800">—</span>
+        </div>
+    </div>
+
+    <!-- Charts -->
+    <div id="charts" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+        <div class="bg-white rounded shadow p-4">
+            <h3 class="font-semibold text-gray-700 mb-3">Employment by Sector</h3>
+            <canvas id="employmentChart"></canvas>
+        </div>
+
+        <div class="bg-white rounded shadow p-4">
+            <h3 class="font-semibold text-gray-700 mb-3">Top Employers</h3>
+            <canvas id="employersChart"></canvas>
+        </div>
+
+        <div class="bg-white rounded shadow p-4">
+            <h3 class="font-semibold text-gray-700 mb-3">Most Common Job Titles</h3>
+            <canvas id="jobTitlesChart"></canvas>
+        </div>
+
+        <div class="bg-white rounded shadow p-4">
+            <h3 class="font-semibold text-gray-700 mb-3">Geographic Distribution</h3>
+            <canvas id="geographicChart"></canvas>
+        </div>
+
+        <div class="bg-white rounded shadow p-4">
+            <h3 class="font-semibold text-gray-700 mb-3">Top Certifications</h3>
+            <canvas id="certChart"></canvas>
+        </div>
+
+        <div class="bg-white rounded shadow p-4">
+            <h3 class="font-semibold text-gray-700 mb-3">Most Completed Courses</h3>
+            <canvas id="courseChart"></canvas>
+        </div>
+
+        <div class="bg-white rounded shadow p-4">
+            <h3 class="font-semibold text-gray-700 mb-3">Skills Gap — Certifications</h3>
+            <canvas id="skillsCertChart"></canvas>
+        </div>
+
+        <div class="bg-white rounded shadow p-4">
+            <h3 class="font-semibold text-gray-700 mb-3">Certification & Course Trends</h3>
+            <canvas id="trendsChart"></canvas>
+        </div>
+
+    </div>
+
+    <!-- Alumni Table -->
+    <div id="alumni" class="bg-white rounded shadow p-4">
+        <h3 class="font-semibold text-gray-700 mb-3">Alumni List</h3>
+        <div class="flex gap-3 mb-4">
+            <input type="text" id="industry" placeholder="Filter by industry"
+                   class="border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+            <button onclick="loadAlumni()"
+                    class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition text-sm">Search
+            </button>
+        </div>
+        <div class="overflow-x-auto">
+            <table class="w-full text-sm text-left">
+                <thead class="bg-gray-50 text-gray-500 uppercase text-xs">
+                <tr>
+                    <th class="px-4 py-2">Email</th>
+                    <th class="px-4 py-2">Roles</th>
+                    <th class="px-4 py-2">Programme</th>
+                    <th class="px-4 py-2">Location</th>
+                    <th class="px-4 py-2">LinkedIn</th>
+                    <th class="px-4 py-2">Complete</th>
+                </tr>
+                </thead>
+                <tbody id="alumni-body" class="divide-y divide-gray-100"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Export -->
+    <div id="export" class="bg-white rounded shadow p-4">
+        <h3 class="font-semibold text-gray-700 mb-3">Export Data</h3>
+        <button onclick="exportAll()"
+                class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 transition text-sm">Export CSV
+        </button>
+        <p id="export-msg" class="mt-3 text-sm text-green-600"></p>
+    </div>
+
+</div>
+
+<script>
+    const BASE = '/index.php/api/v1';
+    let charts = {};
+
+    // Auth check
+    fetch(BASE + '/auth/role', {credentials: 'same-origin'})
+        .then(r => r.json())
+        .then(data => {
+            if (!data.status || data.role !== 'staff') window.location.href = 'login.html';
+        })
+        .catch(() => window.location.href = 'login.html');
+
+    async function logout() {
+        await fetch(BASE + '/auth/logout', {method: 'POST', credentials: 'same-origin'});
+        window.location.href = 'login.html';
+    }
+
+    function getFilters() {
+        return {
+            programme: document.getElementById('programme').value,
+            grad_year: document.getElementById('grad_year').value
+        };
+    }
+
+    function buildQuery(extras = {}) {
+        const f = {...getFilters(), ...extras};
+        return Object.entries(f).filter(([k, v]) => v).map(([k, v]) => k + '=' + encodeURIComponent(v)).join('&');
+    }
+
+    function destroyChart(id) {
+        if (charts[id]) {
+            charts[id].destroy();
+            delete charts[id];
+        }
+    }
+
+    const COLORS = ['#3B82F6', '#EF4444', '#10B981', '#F59E0B', '#8B5CF6', '#06B6D4', '#F97316', '#EC4899', '#14B8A6', '#6366F1'];
+
+    async function loadFilters() {
+        const res = await fetch(BASE + '/analytics/filters', {credentials: 'same-origin'}).then(r => r.json());
+        const progSel = document.getElementById('programme');
+        const yearSel = document.getElementById('grad_year');
+        res.programmes.forEach(p => {
+            if (p.programme) progSel.innerHTML += '<option value="' + p.programme + '">' + p.programme + '</option>';
+        });
+        res.grad_years.forEach(y => {
+            if (y.grad_year) yearSel.innerHTML += '<option value="' + y.grad_year + '">' + y.grad_year + '</option>';
+        });
+    }
+
+    async function loadAlumniCount() {
+        const res = await fetch(BASE + '/analytics/alumni?' + buildQuery(), {credentials: 'same-origin'}).then(r => r.json());
+        document.getElementById('alumni-count').textContent = res.count;
+    }
+
+    async function loadAlumni() {
+        const industry = document.getElementById('industry').value;
+        const res = await fetch(BASE + '/analytics/alumni?' + buildQuery({industry}), {credentials: 'same-origin'}).then(r => r.json());
+        document.getElementById('alumni-body').innerHTML = res.alumni.map(a => `
+        <tr class="hover:bg-gray-50">
+            <td class="px-4 py-2">${a.email}</td>
+            <td class="px-4 py-2">${a.roles || '—'}</td>
+            <td class="px-4 py-2">${a.programme || '—'}</td>
+            <td class="px-4 py-2">${a.location || '—'}</td>
+            <td class="px-4 py-2">${a.linkedin_url ? '<a href="' + a.linkedin_url + '" target="_blank" class="text-blue-600 hover:underline">View</a>' : '—'}</td>
+            <td class="px-4 py-2">${a.is_complete == 1 ? '<span class="text-green-600">Yes</span>' : '<span class="text-red-400">No</span>'}</td>
+        </tr>`).join('');
+    }
+
+    async function loadEmployment() {
+        const res = await fetch(BASE + '/analytics/employment?' + buildQuery(), {credentials: 'same-origin'}).then(r => r.json());
+        destroyChart('employment');
+        charts['employment'] = new Chart(document.getElementById('employmentChart'), {
+            type: 'doughnut',
+            data: {
+                labels: res.data.map(d => d.sector),
+                datasets: [{data: res.data.map(d => d.count), backgroundColor: COLORS}]
+            },
+            options: {responsive: true, plugins: {legend: {position: 'right'}, tooltip: {enabled: true}}}
+        });
+    }
+
+    async function loadEmployers() {
+        const res = await fetch(BASE + '/analytics/employers?' + buildQuery(), {credentials: 'same-origin'}).then(r => r.json());
+        destroyChart('employers');
+        charts['employers'] = new Chart(document.getElementById('employersChart'), {
+            type: 'bar',
+            data: {
+                labels: res.data.map(d => d.company),
+                datasets: [{label: 'Alumni', data: res.data.map(d => d.count), backgroundColor: '#3B82F6'}]
+            },
+            options: {
+                responsive: true,
+                plugins: {legend: {display: false}},
+                scales: {y: {beginAtZero: true, ticks: {stepSize: 1}}}
+            }
+        });
+    }
+
+    async function loadJobTitles() {
+        const res = await fetch(BASE + '/analytics/job-titles?' + buildQuery(), {credentials: 'same-origin'}).then(r => r.json());
+        destroyChart('jobTitles');
+        charts['jobTitles'] = new Chart(document.getElementById('jobTitlesChart'), {
+            type: 'bar',
+            data: {
+                labels: res.data.map(d => d.title),
+                datasets: [{label: 'Count', data: res.data.map(d => d.count), backgroundColor: '#EF4444'}]
+            },
+            options: {
+                indexAxis: 'y',
+                responsive: true,
+                plugins: {legend: {display: false}},
+                scales: {x: {beginAtZero: true, ticks: {stepSize: 1}}}
+            }
+        });
+    }
+
+    async function loadGeographic() {
+        const res = await fetch(BASE + '/analytics/geographic?' + buildQuery(), {credentials: 'same-origin'}).then(r => r.json());
+        destroyChart('geographic');
+        charts['geographic'] = new Chart(document.getElementById('geographicChart'), {
+            type: 'bar',
+            data: {
+                labels: res.data.map(d => d.location),
+                datasets: [{label: 'Alumni', data: res.data.map(d => d.count), backgroundColor: '#10B981'}]
+            },
+            options: {
+                responsive: true,
+                plugins: {legend: {display: false}},
+                scales: {y: {beginAtZero: true, ticks: {stepSize: 1}}}
+            }
+        });
+    }
+
+    async function loadCertifications() {
+        const res = await fetch(BASE + '/analytics/certifications?' + buildQuery(), {credentials: 'same-origin'}).then(r => r.json());
+        destroyChart('cert');
+        charts['cert'] = new Chart(document.getElementById('certChart'), {
+            type: 'pie',
+            data: {
+                labels: res.data.map(d => d.title),
+                datasets: [{data: res.data.map(d => d.count), backgroundColor: COLORS}]
+            },
+            options: {responsive: true, plugins: {legend: {position: 'right'}}}
+        });
+    }
+
+    async function loadCourses() {
+        const res = await fetch(BASE + '/analytics/courses?' + buildQuery(), {credentials: 'same-origin'}).then(r => r.json());
+        destroyChart('course');
+        charts['course'] = new Chart(document.getElementById('courseChart'), {
+            type: 'bar',
+            data: {
+                labels: res.data.map(d => d.title),
+                datasets: [{label: 'Count', data: res.data.map(d => d.count), backgroundColor: '#8B5CF6'}]
+            },
+            options: {
+                responsive: true,
+                plugins: {legend: {display: false}},
+                scales: {y: {beginAtZero: true, ticks: {stepSize: 1}}}
+            }
+        });
+    }
+
+    async function loadSkillsGap() {
+        const res = await fetch(BASE + '/analytics/skills-gap?' + buildQuery(), {credentials: 'same-origin'}).then(r => r.json());
+        destroyChart('skillsCert');
+        charts['skillsCert'] = new Chart(document.getElementById('skillsCertChart'), {
+            type: 'bar',
+            data: {
+                labels: res.data.certifications.map(d => d.title),
+                datasets: [{
+                    label: 'Alumni with certification',
+                    data: res.data.certifications.map(d => d.count),
+                    backgroundColor: '#3B82F6'
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {legend: {display: false}},
+                scales: {y: {beginAtZero: true, ticks: {stepSize: 1}}}
+            }
+        });
+    }
+
+    async function loadTrends() {
+        const res = await fetch(BASE + '/analytics/trends?' + buildQuery(), {credentials: 'same-origin'}).then(r => r.json());
+        const certLabels = res.data.certifications.map(d => d.year + '-' + String(d.month).padStart(2, '0'));
+        const courseLabels = res.data.courses.map(d => d.year + '-' + String(d.month).padStart(2, '0'));
+        const allLabels = [...new Set([...certLabels, ...courseLabels])].sort();
+        destroyChart('trends');
+        charts['trends'] = new Chart(document.getElementById('trendsChart'), {
+            type: 'line',
+            data: {
+                labels: allLabels,
+                datasets: [
+                    {
+                        label: 'Certifications',
+                        data: allLabels.map(l => {
+                            const f = res.data.certifications.find(d => d.year + '-' + String(d.month).padStart(2, '0') === l);
+                            return f ? f.count : 0;
+                        }),
+                        borderColor: '#3B82F6', tension: 0.3, fill: false
+                    },
+                    {
+                        label: 'Courses',
+                        data: allLabels.map(l => {
+                            const f = res.data.courses.find(d => d.year + '-' + String(d.month).padStart(2, '0') === l);
+                            return f ? f.count : 0;
+                        }),
+                        borderColor: '#10B981', tension: 0.3, fill: false
+                    }
+                ]
+            },
+            options: {responsive: true, scales: {y: {beginAtZero: true, ticks: {stepSize: 1}}}}
+        });
+    }
+
+    function downloadCSV(filename, rows, headers) {
+        const csv = [headers.join(','), ...rows].join('\n');
+        const blob = new Blob([csv], {type: 'text/csv'});
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = filename;
+        a.click();
+        URL.revokeObjectURL(url);
+    }
+
+    async function exportAll() {
+        const industry = document.getElementById('industry').value;
+        const res = await fetch(BASE + '/analytics/alumni?' + buildQuery({industry}), {credentials: 'same-origin'}).then(r => r.json());
+        const rows = res.alumni.map(a => [
+            a.email,
+            a.programme || '',
+            a.location || '',
+            a.roles || '',
+            a.linkedin_url || '',
+            a.is_complete == 1 ? 'Yes' : 'No'
+        ].join(','));
+        downloadCSV('alumni-export.csv', rows, ['Email', 'Programme', 'Location', 'Roles', 'LinkedIn', 'Profile Complete']);
+        document.getElementById('export-msg').textContent = 'Exported ' + res.count + ' alumni';
+    }
+
+    async function loadAll() {
+        await Promise.all([
+            loadAlumniCount(),
+            loadAlumni(),
+            loadEmployment(),
+            loadEmployers(),
+            loadJobTitles(),
+            loadGeographic(),
+            loadCertifications(),
+            loadCourses(),
+            loadSkillsGap(),
+            loadTrends()
+        ]);
+    }
+
+    loadFilters().then(() => loadAll());
+</script>
+</body>
+</html>

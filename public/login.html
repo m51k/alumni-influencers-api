@@ -1,29 +1,39 @@
 <!DOCTYPE html>
 <html>
-<head><title>Login</title></head>
-<body>
-<h2>Login</h2>
-<form id="form">
-    <input type="email" id="email" placeholder="Email" required><br>
-    <input type="password" id="password" placeholder="Password" required><br>
-    <button type="submit">Login</button>
-</form>
-<p id="msg"></p>
-<a href="register.html">Register</a> |
-<a href="forgot-password.html">Forgot password?</a>
+<head>
+    <title>Login</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 min-h-screen flex items-center justify-center">
+<div class="bg-white p-8 rounded shadow w-full max-w-md">
+    <h2 class="text-2xl font-bold mb-6 text-gray-800">Login</h2>
+    <form id="form" class="space-y-4">
+        <input type="email" id="email" placeholder="Email" required
+               class="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+        <input type="password" id="password" placeholder="Password" required
+               class="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+        <button type="submit"
+                class="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700 transition">Login
+        </button>
+    </form>
+    <p id="msg" class="mt-4 text-red-500 text-sm"></p>
+    <div class="mt-4 text-sm text-gray-600 space-x-2">
+        <a href="register.html" class="text-blue-600 hover:underline">Register</a>
+        <span>|</span>
+        <a href="forgot-password.html" class="text-blue-600 hover:underline">Forgot password?</a>
+    </div>
+</div>
 <script>
-    fetch('/index.php/api/v1/alumnus/profile', { credentials: 'same-origin' })
+    fetch('/index.php/api/v1/auth/role', {credentials: 'same-origin'})
         .then(res => {
-            if (res.ok) window.location.href = 'today.html';
-            if (res.status === 403) {
-                fetch('/index.php/api/v1/auth/role', { credentials: 'same-origin' })
-                    .then(r => r.json())
-                    .then(data => {
-                        if (data.role === 'staff') window.location.href = 'analytics/index.html';
-                        else window.location.href = 'today.html';
-                    });
-            }
+            if (res.ok) return res.json();
+        })
+        .then(data => {
+            if (!data) return;
+            if (data.role === 'staff') window.location.href = 'analytics.html';
+            else if (data.role) window.location.href = 'today.html';
         });
+
     document.getElementById('form').addEventListener('submit', async function (e) {
         e.preventDefault();
         const res = await fetch('/index.php/api/v1/auth/login', {
@@ -37,11 +47,8 @@
         });
         const data = await res.json();
         if (data.status) {
-            if (data.role === 'staff') {
-                window.location.href = 'analytics/index.html';
-            } else {
-                window.location.href = 'today.html';
-            }
+            if (data.role === 'staff') window.location.href = 'analytics.html';
+            else window.location.href = 'today.html';
         } else {
             document.getElementById('msg').textContent = data.message;
         }

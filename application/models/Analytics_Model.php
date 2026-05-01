@@ -20,10 +20,11 @@ class Analytics_Model extends CI_Model
 
     public function get_alumni($programme = NULL, $grad_year = NULL, $industry = NULL)
     {
-        $this->db->select('users.id, users.email, profiles.programme, profiles.location, profiles.linkedin_url, profiles.image_path, profiles.is_complete')
+        $this->db->select('users.id, users.email, profiles.programme, profiles.location, profiles.linkedin_url, profiles.image_path, profiles.is_complete, GROUP_CONCAT(employment.role SEPARATOR ", ") as roles')
             ->from('users')
             ->join('profiles', 'profiles.user_id = users.id')
             ->join('degrees', 'degrees.profile_id = profiles.id', 'left')
+            ->join('employment', 'employment.profile_id = profiles.id', 'left')
             ->where('users.role', 'alumnus');
 
         if ($programme) {
@@ -33,7 +34,7 @@ class Analytics_Model extends CI_Model
             $this->db->where('degrees.grad_year', $grad_year);
         }
         if ($industry) {
-            $this->db->where('employment.role', $industry);
+            $this->db->like('employment.role', $industry);
         }
 
         return $this->db->group_by('users.id')
@@ -217,7 +218,8 @@ class Analytics_Model extends CI_Model
 
     public function get_programmes()
     {
-        return $this->db->select('DISTINCT programme')
+        return $this->db->distinct()
+            ->select('programme')
             ->where('programme IS NOT NULL', NULL, FALSE)
             ->get('profiles')
             ->result();
@@ -225,7 +227,8 @@ class Analytics_Model extends CI_Model
 
     public function get_grad_years()
     {
-        return $this->db->select('DISTINCT grad_year')
+        return $this->db->distinct()
+            ->select('grad_year')
             ->where('grad_year IS NOT NULL', NULL, FALSE)
             ->order_by('grad_year', 'DESC')
             ->get('degrees')
