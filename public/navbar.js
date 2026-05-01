@@ -13,6 +13,7 @@ function renderNavbar(role) {
             <span class="font-bold text-gray-800 mr-4">Alumni Platform</span>
             <a href="keys.html" class="text-gray-600 hover:text-blue-600 transition">API Keys</a>
             <a href="today.html" class="text-gray-600 hover:text-blue-600 transition">Influencer of the Day</a>
+            <a href="api-docs/index.html" class="text-gray-600 hover:text-blue-600 transition">Swagger Documentation</a>
             <a href="#" onclick="logout()" class="ml-auto text-red-500 hover:text-red-700 transition">Logout</a>
         </nav>`;
 

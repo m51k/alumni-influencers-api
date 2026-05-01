@@ -148,31 +148,31 @@
 
         document.getElementById('degrees').innerHTML = '<ul class="list-disc list-inside space-y-1">' +
             data.degrees.map(d =>
-                '<li>' + d.qualification + ' — ' + d.institution + ' (' + (d.grad_year || 'N/A') + ')' +
+                '<li>' + d.qualification + ' - ' + d.institution + ' (' + (d.grad_year || 'N/A') + ')' +
                 ' <button onclick="deleteDegree(' + d.id + ')" class="text-red-400 hover:text-red-600 text-xs ml-2">Delete</button></li>'
             ).join('') + '</ul>';
 
         document.getElementById('certifications').innerHTML = '<ul class="list-disc list-inside space-y-1">' +
             data.certifications.map(c =>
-                '<li>' + c.title + ' — ' + c.issuer +
+                '<li>' + c.title + ' - ' + c.issuer +
                 ' <button onclick="deleteCertification(' + c.id + ')" class="text-red-400 hover:text-red-600 text-xs ml-2">Delete</button></li>'
             ).join('') + '</ul>';
 
         document.getElementById('licences').innerHTML = '<ul class="list-disc list-inside space-y-1">' +
             data.licences.map(l =>
-                '<li>' + l.title + ' — ' + l.issuer +
+                '<li>' + l.title + ' - ' + l.issuer +
                 ' <button onclick="deleteLicence(' + l.id + ')" class="text-red-400 hover:text-red-600 text-xs ml-2">Delete</button></li>'
             ).join('') + '</ul>';
 
         document.getElementById('courses').innerHTML = '<ul class="list-disc list-inside space-y-1">' +
             data.courses.map(c =>
-                '<li>' + c.title + ' — ' + c.provider +
+                '<li>' + c.title + ' - ' + c.provider +
                 ' <button onclick="deleteCourse(' + c.id + ')" class="text-red-400 hover:text-red-600 text-xs ml-2">Delete</button></li>'
             ).join('') + '</ul>';
 
         document.getElementById('employment').innerHTML = '<ul class="list-disc list-inside space-y-1">' +
             data.employment.map(e =>
-                '<li>' + e.role + ' at ' + e.company + ' (' + e.start_date + ' — ' + (e.end_date || 'Present') + ')' +
+                '<li>' + e.role + ' at ' + e.company + ' (' + e.start_date + ' - ' + (e.end_date || 'Present') + ')' +
                 ' <button onclick="deleteEmployment(' + e.id + ')" class="text-red-400 hover:text-red-600 text-xs ml-2">Delete</button></li>'
             ).join('') + '</ul>';
     }
